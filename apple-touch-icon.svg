@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <style>
+      .bg { fill: #1a3a3a; }
+      .cam { fill: #2d5a5a; }
+      .lens { fill: #c36b4b; }
+      .lens-inner { fill: #8b4a32; }
+      .dot { fill: #e8ddd0; }
+    </style>
+  </defs>
+  <circle cx="96" cy="96" r="96" class="bg"/>
+  <rect x="48" y="66" width="96" height="60" rx="12" class="cam"/>
+  <rect x="72" y="78" width="48" height="36" rx="24" class="lens"/>
+  <circle cx="96" cy="96" r="15" class="lens-inner"/>
+  <circle cx="96" cy="96" r="5" class="dot"/>
+</svg>

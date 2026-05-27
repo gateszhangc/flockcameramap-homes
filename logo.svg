@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .bg { fill: #1a3a3a; }
+      .cam-body { fill: #2d5a5a; }
+      .cam-lens { fill: #c36b4b; }
+      .cam-lens-inner { fill: #8b4a32; }
+      .cam-dot { fill: #e8ddd0; }
+      .map-pin { fill: #c36b4b; }
+      .map-pin-inner { fill: #e8ddd0; }
+      .ring { fill: none; stroke: #4a7a7a; stroke-width: 1.5; }
+      .ring-active { fill: none; stroke: #c36b4b; stroke-width: 2; }
+    </style>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="98" class="bg"/>
+  <!-- Radar rings -->
+  <circle cx="100" cy="100" r="45" class="ring"/>
+  <circle cx="100" cy="100" r="60" class="ring" opacity="0.6"/>
+  <circle cx="100" cy="100" r="75" class="ring" opacity="0.3"/>
+  <!-- Radar sweep line -->
+  <line x1="100" y1="100" x2="100" y2="25" class="ring-active" opacity="0.8"/>
+  <!-- Camera icon -->
+  <rect x="65" y="78" width="70" height="44" rx="6" class="cam-body"/>
+  <rect x="82" y="85" width="36" height="30" rx="18" class="cam-lens"/>
+  <circle cx="100" cy="100" r="12" class="cam-lens-inner"/>
+  <circle cx="100" cy="100" r="4" class="cam-dot"/>
+  <!-- Map pin -->
+  <path d="M145 140 C145 140 130 160 130 170 C130 178 137 185 145 185 C153 185 160 178 160 170 C160 160 145 140 145 140Z" class="map-pin"/>
+  <circle cx="145" cy="170" r="6" class="map-pin-inner"/>
+</svg>

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FlockCamMap is an open-source project that maps Flock Safety cameras and license plate readers across the United States.">
+  <meta name="theme-color" content="#f5efe4">
+  <meta name="msapplication-TileColor" content="#f5efe4">
+  <meta name="msapplication-TileImage" content="/favicon.svg">
+
+  <meta property="og:title" content="FlockCamMap">
+  <meta property="og:description" content="Find Flock Safety cameras and license plate readers (LPRs) near you.">
+  <meta property="og:image" content="/og-banner.png">
+  <meta property="og:url" content="https://flockcameramap.com">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FlockCamMap">
+  <meta name="twitter:description" content="Find Flock Safety cameras and license plate readers (LPRs) near you.">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+  <title>FlockCamMap</title>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "FlockCamMap",
+    "url": "https://flockcameramap.com"
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5efe4;
+      --bg-card: rgba(245, 239, 228, 0.85);
+      --primary: #1a3a3a;
+      --primary-light: #2d5a5a;
+      --accent: #c36b4b;
+      --accent-hover: #a85a3e;
+      --text: #1a1a1a;
+      --text-muted: #5a5a5a;
+      --border: rgba(26, 58, 58, 0.1);
+      --ring: rgba(26, 58, 58, 0.08);
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(195, 107, 75, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(45, 90, 90, 0.04) 0%, transparent 60%);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      margin: 16px auto 0;
+      max-width: 1200px;
+      background: rgba(245, 239, 228, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary);
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .nav-logo span {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 20px;
+      background: var(--primary);
+      color: #fff !important;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-light) !important;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(195, 107, 75, 0.1);
+      color: var(--accent);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: 64px;
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+      max-width: 900px;
+      margin: 0 auto 16px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-light);
+      background: rgba(26, 58, 58, 0.04);
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 40px 0;
+      margin: 20px 0 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 500;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Section */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 48px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(26, 58, 58, 0.06);
+      color: var(--primary-light);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--primary);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Card Grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      padding: 32px;
+      background: var(--bg-card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(26, 58, 58, 0.2);
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(195, 107, 75, 0.1);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .card h3 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Stepped section */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: var(--bg);
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Two column section */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .info-col h2 {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--primary);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .info-col p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-list .check {
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* FAQ */
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-question {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .faq-answer {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-section h2 {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 40px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .stats {
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header h2 {
+        font-size: 28px;
+      }
+
+      .nav-links li:not(:last-child) {
+        display: none;
+      }
+
+      nav {
+        padding: 8px 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-actions a {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="nav-logo">
+      <svg viewBox="0 0 32 32" width="32" height="32" style="border-radius:50%">
+        <circle cx="16" cy="16" r="16" fill="#1a3a3a"/>
+        <rect x="8" y="11" width="16" height="10" rx="2" fill="#2d5a5a"/>
+        <rect x="12" y="13" width="8" height="6" rx="4" fill="#c36b4b"/>
+        <circle cx="16" cy="16" r="2.5" fill="#8b4a32"/>
+        <circle cx="16" cy="16" r="0.8" fill="#e8ddd0"/>
+      </svg>
+      <span>FlockCamMap</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#dangers">The Dangers</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://mirofish.my/" class="nav-cta">Explore the Map</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1"/></svg>
+          Open-source camera mapping project
+        </div>
+        <h1>See every <em>Flock camera</em> on the map</h1>
+        <p>An open-source project mapping Flock Safety license plate readers across the United States. Find cameras near you and understand the surveillance network around your community.</p>
+        <div class="hero-actions">
+          <a href="https://mirofish.my/" class="btn-primary">
+            Explore the Map
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="#about" class="btn-secondary">
+            Learn More
+          </a>
+        </div>
+
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number" id="count">72,579</div>
+            <div class="stat-label">Cameras mapped in the USA</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">63</div>
+            <div class="stat-label">States with documented cameras</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">1,200+</div>
+            <div class="stat-label">Agencies sharing data</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About / What are Flock Cameras -->
+    <section id="about">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">About</div>
+          <h2>What are Flock cameras?</h2>
+          <p>Flock Safety is one of the largest ALPR vendors in the United States. Their cameras are installed for police departments, businesses, and HOAs. Captured vehicle data is uploaded to Flock's cloud system, where participating agencies can search and share information across jurisdictions.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="info-col">
+            <h2>How license plate readers work</h2>
+            <p>Automated License Plate Readers (ALPRs or LPRs) are AI-powered cameras that capture and analyze images of all passing vehicles, storing details like your car's location, date, and time. They also capture your car's make, model, color, and identifying features such as dents, roof racks, and bumper stickers, often turning these into searchable data points.</p>
+            <p>These cameras collect data on millions of vehicles regardless of whether the driver is suspected of a crime. These systems are marketed as indispensable tools to fight crime, but they ignore the powerful tools police already have to track criminals, such as cell phone location data, creating a loophole that doesn't require a warrant.</p>
+          </div>
+          <div class="card" style="padding:24px;">
+            <svg viewBox="0 0 400 280" width="100%" style="border-radius:12px;background:#e8ddd0;">
+              <rect x="0" y="0" width="400" height="280" fill="#e8ddd0" rx="12"/>
+              <rect x="100" y="60" width="200" height="40" rx="8" fill="#2d5a5a" opacity="0.15"/>
+              <rect x="100" y="115" width="200" height="40" rx="8" fill="#2d5a5a" opacity="0.15"/>
+              <rect x="100" y="170" width="200" height="40" rx="8" fill="#2d5a5a" opacity="0.15"/>
+              <rect x="30" y="60" width="55" height="40" rx="6" fill="#1a3a3a"/>
+              <circle cx="57" cy="80" r="4" fill="#c36b4b"/>
+              <rect x="30" y="115" width="55" height="40" rx="6" fill="#1a3a3a"/>
+              <circle cx="57" cy="135" r="4" fill="#c36b4b"/>
+              <rect x="30" y="170" width="55" height="40" rx="6" fill="#1a3a3a"/>
+              <circle cx="57" cy="190" r="4" fill="#c36b4b"/>
+              <text x="310" y="88" font-family="monospace" font-size="11" fill="#5a5a5a">CA 7ABC123</text>
+              <text x="310" y="143" font-family="monospace" font-size="11" fill="#5a5a5a">NY 4XYZ890</text>
+              <text x="310" y="198" font-family="monospace" font-size="11" fill="#5a5a5a">TX 2LMN456</text>
+              <line x1="100" y1="235" x2="300" y2="235" stroke="#c36b4b" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <text x="130" y="255" font-family="sans-serif" font-size="12" fill="#c36b4b" font-weight="600">Annotated capture stream</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dangers -->
+    <section id="dangers" style="background:rgba(195,107,75,0.04);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">Privacy Risk</div>
+          <h2>The dangers of ALPR networks</h2>
+          <p>ALPRs track your movements and store your data for long periods of time, creating a detailed record of your location history.</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            </div>
+            <h3>Wrongful arrests</h3>
+            <p>Data from ALPRs has led to wrongful arrests, profiling, and stalking ex-partners by police officers. The lack of oversight creates opportunities for abuse.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>Long-term surveillance</h3>
+            <p>These systems continuously record your movements without a warrant, probable cause, or even reasonable suspicion. Your driving history is stored indefinitely.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            </div>
+            <h3>Data sharing without consent</h3>
+            <p>Your driving history is rarely confined to the town or city where the cameras are installed. It's typically shared with thousands of other agencies nationwide, often without your knowledge.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">How It Works</div>
+          <h2>How the camera map works</h2>
+          <p>FlockCamMap aggregates publicly available data to show the locations of Flock Safety cameras and understand the reach of automated license plate reader networks.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Data collection</h3>
+            <p>Cameras are identified through public records requests, crowdsourced reports, and open data sources across jurisdictions.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Map visualization</h3>
+            <p>Each verified camera location is plotted on an interactive map with details about the agency, installation date, and camera type.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Community reporting</h3>
+            <p>Users can submit new camera sightings to help keep the map accurate and up to date with the rapidly expanding surveillance network.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Privacy awareness</h3>
+            <p>The goal is to inform communities about surveillance infrastructure so citizens can make informed decisions and advocate for privacy protections.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why it matters -->
+    <section style="background:rgba(26,58,58,0.03);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">Why It Matters</div>
+          <h2>Transparency through mapping</h2>
+          <p>Most surveillance cameras operate without public awareness. Mapping them is the first step toward accountability.</p>
+        </div>
+
+        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card" style="text-align:center;">
+            <h3>Data without warrant</h3>
+            <p>ALPRs collect data on every passing vehicle without a warrant or probable cause. This creates a searchable database of millions of innocent drivers' movements.</p>
+          </div>
+          <div class="card" style="text-align:center;">
+            <h3>Cross-jurisdiction sharing</h3>
+            <p>Once your data enters the system, it can be shared across thousands of law enforcement agencies nationwide without your consent or knowledge.</p>
+          </div>
+          <div class="card" style="text-align:center;">
+            <h3>No crime prevention evidence</h3>
+            <p>There's no substantial evidence that ALPRs effectively prevent crime, despite vendors' attempts to prove otherwise. The privacy cost outweighs the unproven benefits.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">FAQ</div>
+          <h2>Frequently asked questions</h2>
+          <p>The fastest answers to the questions people ask first.</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-question">What is a Flock camera?</div>
+            <div class="faq-answer">A Flock camera is an automated license plate reader (ALPR) manufactured by Flock Safety. These AI-powered cameras capture and analyze every passing vehicle's license plate, make, model, color, and identifying features. This data is uploaded to Flock's cloud system where it can be shared across law enforcement agencies.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Are Flock cameras always recording?</div>
+            <div class="faq-answer">Flock cameras continuously capture images of every vehicle that passes, not just those suspected of criminal activity. They operate 24/7 and store data including timestamps, locations, and vehicle characteristics.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">How many Flock cameras are there in the US?</div>
+            <div class="faq-answer">There are currently over 72,000 Flock cameras mapped across the United States, spanning 63 states and territories. The network continues to expand rapidly as more police departments, HOAs, and businesses install these systems.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Who uses Flock camera data?</div>
+            <div class="faq-answer">Over 1,200 law enforcement agencies across the US have access to Flock's data network. This includes police departments, sheriff's offices, and other law enforcement entities that share data across jurisdictional boundaries.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Is Flock the only ALPR vendor?</div>
+            <div class="faq-answer">No. While Flock Safety is one of the largest vendors, there are other ALPR manufacturers that participate in similar data collection and sharing practices. FlockCamMap focuses on Flock cameras as a significant part of the broader surveillance ecosystem.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">How can I find cameras near me?</div>
+            <div class="faq-answer">You can explore the interactive map to see documented Flock camera locations in your area. The map is community-maintained and updated regularly as new cameras are identified through public records and crowdsourced reports.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>See what's watching your community</h2>
+        <p>Explore the map to find Flock cameras near you and understand the surveillance infrastructure around your neighborhood.</p>
+        <a href="https://mirofish.my/" class="btn-primary">
+          Explore the Map
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>FlockCamMap is an open-source project documenting Flock Safety camera locations for public awareness and privacy advocacy.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Animate the counter
+    const countEl = document.getElementById('count');
+    if (countEl) {
+      let current = 0;
+      const target = 72579;
+      const step = Math.ceil(target / 60);
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        countEl.textContent = current.toLocaleString();
+      }, 25);
+    }
+  </script>
+</body>
+</html>
